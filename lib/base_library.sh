@@ -23,7 +23,7 @@ provision_networking_components() {
   gcloud compute firewall-rules list --filter="network:k8s-vpc"
 
   ## create public IP
-  gcloud compute addresses create k8s-pip --region us-west1
+  gcloud compute addresses create controller-0-static-ip --region us-west1
 
   ## list public IP
   gcloud compute addresses list --filter="name=('k8s-pip')"
@@ -88,7 +88,7 @@ list_k8s_nodes() {
 generate_kubeconfig_admin_user_localhost() {
 
   ## get public address
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8s-pip --region us-west1 --format 'value(address)')
+  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -216,6 +216,6 @@ cleanup_environment() {
   gcloud -q compute networks delete k8s-vpc
 
   ##  external IP
-  gcloud -q compute addresses delete k8s-pip --region us-west1
+  gcloud -q compute addresses delete controller-0-static-ip --region us-west1
 
 }

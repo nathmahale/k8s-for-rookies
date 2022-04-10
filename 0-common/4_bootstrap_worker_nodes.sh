@@ -2,7 +2,7 @@
 
 set -vx
 
-source ./bootstrap_worker_nodes_library.sh
+source ../lib/bootstrap_worker_nodes_library.sh
 
 echo "Provision worker nodes."
 provision_worker_nodes

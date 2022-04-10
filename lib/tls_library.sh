@@ -201,7 +201,8 @@ EOF
 generate_kubernetes_api_server_cert() {
 
   ## get public address
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8s-pip --region us-west1 --format 'value(address)')
+  # KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
+  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
   KUBERNETES_HOSTNAMES=kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
 

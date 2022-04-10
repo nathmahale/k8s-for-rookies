@@ -2,7 +2,7 @@
 
 set -vx
 
-source ./bootstrap_controller_nodes_library.sh
+source ../lib/bootstrap_controller_nodes_library.sh
 
 echo "Bootstrap etcd cluster."
 bootstrap_etcd_cluster

@@ -2,8 +2,8 @@
 
 set -vx
 
-source ./kubeconfig_library.sh
-source ./dataencryption_library.sh
+source ../lib/kubeconfig_library.sh
+source ../lib/dataencryption_library.sh
 
 echo "Generating kubeconfigs for controller manager, kubelet, kube-proxy and scheduler."
 generate_kubeconfig_kubelet_worker_nodes

@@ -93,7 +93,7 @@ bootstrap_k8s_control_plane() {
     http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
 
   ## get public address
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8s-pip --region us-west1 --format 'value(address)')
+  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
   cat <<EOF | sudo tee /etc/systemd/system/kube-apiserver.service
 [Unit]
@@ -286,7 +286,7 @@ EOF
 
 provision_nlb() {
   {
-    KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8s-pip --region us-west1 --format 'value(address)')
+    KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
     gcloud compute http-health-checks create k8s-hc \
       --description "Kubernetes Health Check" \
@@ -313,7 +313,7 @@ provision_nlb() {
 }
 
 verify_cluster_version() {
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8s-pip --region us-west1 --format 'value(address)')
+  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
   curl --cacert ca.pem https://${KUBERNETES_PUBLIC_ADDRESS}:6443/version
 }

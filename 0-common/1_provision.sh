@@ -2,7 +2,7 @@
 
 set -vx
 
-source ./tls_library.sh
+source ../lib/tls_library.sh
 
 echo "Generating certs"
 generate_ca
