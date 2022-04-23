@@ -26,6 +26,7 @@ vpc="k8s-vpc"
 KUBERNETES_HOSTNAMES="kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local"
 
 KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe $external_address --region $region --format 'value(address)')
+# KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
 ## get internal IP
 INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
