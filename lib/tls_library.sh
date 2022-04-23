@@ -94,9 +94,6 @@ EOF
     EXTERNAL_IP=$(gcloud compute instances describe ${instance} \
       --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
 
-    INTERNAL_IP=$(gcloud compute instances describe ${instance} \
-      --format 'value(networkInterfaces[0].networkIP)')
-
     cfssl gencert \
       -ca=ca.pem \
       -ca-key=ca-key.pem \
@@ -200,11 +197,6 @@ EOF
 
 generate_kubernetes_api_server_cert() {
 
-  ## get public address
-  # KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
-
-  KUBERNETES_HOSTNAMES=kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
 
   cat >kubernetes-csr.json <<EOF
 {
@@ -274,4 +266,38 @@ copy_worker_certs() {
 copy_controller_certs() {
   gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem controller-0:~/
+}
+
+provision_nlb() {
+  {
+
+    gcloud compute http-health-checks create k8s-hc \
+      --description "Kubernetes Health Check" \
+      --host "kubernetes.default.svc.cluster.local" \
+      --request-path "/healthz"
+
+    gcloud compute firewall-rules create kubernetes-the-hard-way-allow-health-check \
+      --network k8s-vpc \
+      --source-ranges 209.85.152.0/22,209.85.204.0/22,35.191.0.0/16 \
+      --allow tcp
+
+    gcloud compute target-pools create k8s-target-pool \
+      --http-health-check k8s-hc
+
+    gcloud compute target-pools add-instances k8s-target-pool \
+      --instances controller-0 --region $region
+
+    gcloud compute forwarding-rules create kubernetes-forwarding-rule \
+      --address ${KUBERNETES_PUBLIC_ADDRESS} \
+      --ports 6443 \
+      --region $region \
+      --zone $zone \
+      --target-pool k8s-target-pool
+  }
+}
+
+verify_cluster_version() {
+
+  curl --cacert ca.pem https://${KUBERNETES_PUBLIC_ADDRESS}:6443/version
+
 }

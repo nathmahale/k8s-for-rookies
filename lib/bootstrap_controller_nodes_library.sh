@@ -9,12 +9,10 @@ bootstrap_etcd_cluster() {
   sudo mv etcd-v3.4.15-linux-amd64/etcd* /usr/local/bin/
 
   ## configure etcd
+  sudo mkdir -p /var/lib/etcd /etc/etcd/
   sudo chmod 700 /var/lib/etcd
   sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
 
-  ## get internal IP
-  INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
-    http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
 
   ## get etcd member name
   ETCD_NAME=$(hostname -s)
@@ -42,7 +40,7 @@ ExecStart=/usr/local/bin/etcd \\
 --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \\
 --advertise-client-urls https://${INTERNAL_IP}:2379 \\
 --initial-cluster-token etcd-cluster-0 \\
---initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380,controller-2=https://10.240.0.12:2380 \\
+--initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380 \\
 --initial-cluster-state new \\
 --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -88,12 +86,6 @@ bootstrap_k8s_control_plane() {
     service-account-key.pem service-account.pem \
     encryption-config.yaml /var/lib/kubernetes/
 
-  ## get internal IP
-  INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
-    http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
-
-  ## get public address
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
   cat <<EOF | sudo tee /etc/systemd/system/kube-apiserver.service
 [Unit]
@@ -116,7 +108,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=https://10.240.0.10:2379,https://10.240.0.11:2379,https://10.240.0.12:2379 \\
+  --etcd-servers=https://10.240.0.10:2379,https://10.240.0.11:2379 \\
   --event-ttl=1h \\
   --encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\
@@ -282,40 +274,6 @@ subjects:
     kind: User
     name: kubernetes
 EOF
-}
-
-provision_nlb() {
-  {
-    KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
-
-    gcloud compute http-health-checks create k8s-hc \
-      --description "Kubernetes Health Check" \
-      --host "kubernetes.default.svc.cluster.local" \
-      --request-path "/healthz"
-
-    gcloud compute firewall-rules create kubernetes-the-hard-way-allow-health-check \
-      --network k8s-pip \
-      --source-ranges 209.85.152.0/22,209.85.204.0/22,35.191.0.0/16 \
-      --allow tcp
-
-    gcloud compute target-pools create k8s-target-pool \
-      --http-health-check k8s-hc
-
-    gcloud compute target-pools add-instances k8s-target-pool \
-      --instances controller-0
-
-    gcloud compute forwarding-rules create kubernetes-forwarding-rule \
-      --address ${KUBERNETES_PUBLIC_ADDRESS} \
-      --ports 6443 \
-      --region us-west1 \
-      --target-pool k8s-target-pool
-  }
-}
-
-verify_cluster_version() {
-  KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
-
-  curl --cacert ca.pem https://${KUBERNETES_PUBLIC_ADDRESS}:6443/version
 }
 
 start_controller_services() {

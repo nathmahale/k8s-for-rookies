@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -vx
-
 source ../lib/bootstrap_worker_nodes_library.sh
 
 echo "Provision worker nodes."

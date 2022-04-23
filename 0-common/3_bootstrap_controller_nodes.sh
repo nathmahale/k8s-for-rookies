@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -vx
-
 source ../lib/bootstrap_controller_nodes_library.sh
 
 echo "Bootstrap etcd cluster."
@@ -16,11 +14,9 @@ echo "Verify Kubernetes cluster"
 verify_cluster_info
 
 echo "Create clusterRole and clusterRoleBinding"
-create_clusterrole
-create_clusterrolebinding
-
-echo "Provision NLB"
-provision_nlb
-verify_cluster_version
-
-
+if [ $(hostname) == "controller-0" ]; then
+    create_clusterrole
+    create_clusterrolebinding
+else
+    echo "[ INFO ] RBAC not required for this controller node."
+fi

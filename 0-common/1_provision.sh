@@ -1,10 +1,8 @@
 #!/bin/bash
 
-set -vx
-
 source ../lib/tls_library.sh
 
-echo "Generating certs"
+echo "[ INFO ] Generating certs"
 generate_ca
 generate_admin_cert
 generate_kubelet_client_certs
@@ -14,8 +12,9 @@ generate_kube_scheduler_client_cert
 generate_kubernetes_api_server_cert
 generate_service_account_keypair
 
-echo "Copy certs to Worker nodes"
+echo "[ INFO ] Copy certs to Worker nodes"
 copy_worker_certs
 
-echo "Copy certs to Controller nodes"
+echo "[ INFO ] Copy certs to Controller nodes"
 copy_controller_certs
+

@@ -1,6 +1,4 @@
 generate_kubeconfig_kubelet_worker_nodes() {
-    ## get public address
-    KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
     for instance in worker-0 worker-1; do
         kubectl config set-cluster kubernetes-the-hard-way \
@@ -26,9 +24,6 @@ generate_kubeconfig_kubelet_worker_nodes() {
 }
 
 generate_kubeconfig_kube_proxy() {
-
-    ## get public address
-    KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe controller-0-static-ip --region us-west1 --format 'value(address)')
 
     kubectl config set-cluster kubernetes-the-hard-way \
         --certificate-authority=ca.pem \

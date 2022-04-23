@@ -13,7 +13,7 @@ provision_worker_nodes() {
     https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kube-proxy \
     https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kubelet
 
-  ## creae installation directories
+  ## create installation directories
   sudo mkdir -p \
     /etc/cni/net.d \
     /opt/cni/bin \
