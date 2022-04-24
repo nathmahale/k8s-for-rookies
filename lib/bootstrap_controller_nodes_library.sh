@@ -40,7 +40,7 @@ ExecStart=/usr/local/bin/etcd \\
 --listen-client-urls https://${INTERNAL_IP}:2379,https://127.0.0.1:2379 \\
 --advertise-client-urls https://${INTERNAL_IP}:2379 \\
 --initial-cluster-token etcd-cluster-0 \\
---initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380 \\
+--initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380,controller-2=https://10.240.0.12:2380 \\
 --initial-cluster-state new \\
 --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -108,7 +108,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/var/lib/kubernetes/ca.pem \\
   --etcd-certfile=/var/lib/kubernetes/kubernetes.pem \\
   --etcd-keyfile=/var/lib/kubernetes/kubernetes-key.pem \\
-  --etcd-servers=https://10.240.0.10:2379,https://10.240.0.11:2379 \\
+  --etcd-servers=https://10.240.0.10:2379,https://10.240.0.11:2379,https://10.240.0.12:2379 \\
   --event-ttl=1h \\
   --encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \\
   --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \\

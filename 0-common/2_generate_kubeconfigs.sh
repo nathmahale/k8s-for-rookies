@@ -14,5 +14,5 @@ echo "Copy kubeconfigs to worker and controller nodes"
 copy_kubeconfig_kubelet_worker_nodes
 copy_kubeconfig_controller_nodes
 
-# echo "Encrypt data at rest"
-# data_encryption_function
+echo "Encrypt data at rest"
+data_encryption_function

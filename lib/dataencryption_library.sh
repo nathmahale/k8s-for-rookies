@@ -8,7 +8,7 @@ resources:
   - resources:
       - secrets
     providers:
-      - aescbc:x
+      - aescbc:
           keys:
             - name: key1
               secret: ${ENCRYPTION_KEY}
