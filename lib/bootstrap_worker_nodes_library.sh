@@ -204,4 +204,8 @@ start_worker_services() {
   sudo systemctl enable containerd kubelet kube-proxy
   sudo systemctl start containerd kubelet kube-proxy
 
+  sleep 15
+
+  sudo systemctl status containerd kubelet kube-proxy
+
 }
