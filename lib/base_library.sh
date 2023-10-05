@@ -1,31 +1,38 @@
 provision_networking_components() {
 
   ## vpc
+  echo "[ GCP ] Provisioning a VPC"
   gcloud compute networks create k8s-vpc --subnet-mode custom
 
   ## subnet
+  echo "[ GCP ] Provisioning a subnet with range 10.240.0.0/24"
   gcloud compute networks subnets create k8s-subnet \
     --network k8s-vpc \
     --range 10.240.0.0/24
 
   ## firewall rules
+  echo "[ GCP ] Creating firewall rule for internal routing"
   gcloud compute firewall-rules create k8s-allow-internal \
     --allow tcp,udp,icmp \
     --network k8s-vpc \
     --source-ranges 10.240.0.0/24,10.200.0.0/16
 
+  echo "[ GCP ] Creating firewall rule for external routing"
   gcloud compute firewall-rules create k8s-allow-external \
     --allow tcp:22,tcp:6443,icmp \
     --network k8s-vpc \
     --source-ranges 0.0.0.0/0
 
   ## list firewall rules
+  echo "[ GCP ] Listing firewall rules"
   gcloud compute firewall-rules list --filter="network:k8s-vpc"
 
   ## create public IP
+  echo "[ GCP ] Creating public IP"
   gcloud compute addresses create controller-0-static-ip --region us-west1
 
   ## list public IP
+  echo "[ GCP ] Listing public IP"
   gcloud compute addresses list --filter="name=('k8s-pip')"
 
 }
